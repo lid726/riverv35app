@@ -77,7 +77,7 @@ def calc_kd(df, n=9):
 
 
 # =========================
-# 📦 載入資料（修正版）
+# 📦 載入資料
 # =========================
 @st.cache_data
 def load_stock(stock):
@@ -101,7 +101,6 @@ st.title("📊 存股分析 App v3.3（人生像河流）")
 
 stock = st.text_input("輸入股票代號（2330.TW / AAPL）")
 
-# ⭐ 股票格式修正
 stock = stock.strip().upper()
 
 if stock.isdigit():
@@ -141,9 +140,6 @@ if st.button("🚀 開始分析"):
     except:
         info = {}
 
-    # =========================
-    # ⭐ 修正：殖利率（正確算法）
-    # =========================
     divs = ticker.dividends
 
     if divs is not None and not divs.empty:
@@ -238,6 +234,36 @@ if st.button("🚀 開始分析"):
 
     st.write(f"💵 殖利率：{div_yield*100:.2f}%")
     st.write(f"📊 本益比：{pe:.2f}" if pe > 0 else "📊 無資料")
+
+    # =========================
+    # 🧠 殖利率 & 本益比說明（完整補齊）
+    # =========================
+    st.markdown("### 🧠 殖利率說明")
+
+    st.write("📌 殖利率 = 年股息 ÷ 股價")
+    st.write("• 用來看現金回報率")
+    st.write("• 越高不一定越好（可能異常）")
+
+    st.write("")
+    st.write("🟢 低殖利率（<1.5%）→ 成長型股票")
+    st.write("🟡 1.5%~4% → 穩健存股")
+    st.write("🔴 >5% → 需注意是否異常")
+
+    st.write("")
+    st.write("⚠️ 殖利率會隨股價變動（跌價會拉高數值）")
+
+    st.markdown("### 🧠 本益比說明")
+
+    st.write("📌 本益比 = 股價 ÷ EPS")
+    st.write("• 衡量股票是否昂貴")
+
+    st.write("")
+    st.write("🟢 10~20 → 合理區間")
+    st.write("🟡 20~30 → 成長股常見")
+    st.write("🔴 >30 → 偏高或高成長預期")
+
+    st.write("")
+    st.write("⚠️ 成長股 PE 高不一定危險")
 
     # =========================
     # ⭐ 評分說明
