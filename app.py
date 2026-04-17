@@ -77,13 +77,21 @@ def calc_kd(df, n=9):
 
 
 # =========================
-# 📦 載入資料（穩定層）
+# 📦 載入資料（修正版）
 # =========================
 @st.cache_data
 def load_stock(stock):
     try:
-        df = yf.download(stock, period="6mo", progress=False, auto_adjust=False)
+        df = yf.download(
+            stock,
+            period="6mo",
+            progress=False,
+            auto_adjust=False,
+            threads=False   # ⭐ 修正重點
+        )
+
         return clean_data(df)
+
     except:
         return pd.DataFrame()
 
@@ -94,6 +102,12 @@ def load_stock(stock):
 st.title("📊 存股分析 App v3.3（人生像河流）")
 
 stock = st.text_input("輸入股票代號（2330.TW / AAPL）")
+
+# ⭐ 修正重點：股票格式處理
+stock = stock.strip().upper()
+
+if stock.isdigit():
+    stock = stock + ".TW"
 
 if st.button("🚀 開始分析"):
 
@@ -183,7 +197,6 @@ if st.button("🚀 開始分析"):
     st.subheader("📈 趨勢")
     st.line_chart(df[["Close", "MA60"]])
 
-    # ➕ 新增：趨勢說明
     st.markdown("### 🧠 趨勢說明")
     st.write("• 股價 > MA60 → 偏多頭")
     st.write("• 股價 < MA60 → 偏空頭")
@@ -193,48 +206,43 @@ if st.button("🚀 開始分析"):
 
     with col1:
         st.line_chart(df["RSI"])
-
-        # ➕ 新增：RSI說明
         st.markdown("### 🧠 RSI 說明")
-        st.write("• RSI > 70 → 過熱（可能回檔）")
-        st.write("• RSI < 30 → 超賣（可能反彈）")
-        st.write("• 50附近 → 無明確趨勢")
+        st.write("• RSI > 70 → 過熱")
+        st.write("• RSI < 30 → 超賣")
+        st.write("• 50附近 → 無趨勢")
 
     with col2:
         st.line_chart(df[["K", "D"]])
-
-        # ➕ 新增：KD說明
         st.markdown("### 🧠 KD 說明")
-        st.write("• K 上穿 D → 短線轉強（黃金交叉）")
-        st.write("• K 下穿 D → 短線轉弱（死亡交叉）")
-        st.write("• 高檔鈍化 → 可能回檔")
+        st.write("• K 上穿 D → 多頭")
+        st.write("• K 下穿 D → 空頭")
+        st.write("• 高檔鈍化 → 反轉")
 
     # =========================
-    # 💰 配息資訊
+    # 💰 配息
     # =========================
     st.subheader("💰 配息 / 殖利率")
 
     st.write(f"💵 殖利率：{div_yield*100:.2f}%")
-    st.write(f"📊 本益比：{pe:.2f}" if pe > 0 else "📊 本益比：無資料")
+    st.write(f"📊 本益比：{pe:.2f}" if pe > 0 else "📊 無資料")
 
     # =========================
-    # ➕ 新增：評分系統說明
+    # ⭐ 評分說明
     # =========================
     st.markdown("### 🧠 評分系統說明")
 
-    st.write("📊 評分組成如下：")
-    st.write("• 30分 → 股價 > MA60（多頭）")
-    st.write("• 20分 → RSI < 40（低檔）")
-    st.write("• 20分 → KD 低檔區")
-    st.write("• 20分 → 殖利率 > 3%")
-    st.write("• 10分 → 本益比合理（0~20）")
+    st.write("• 30分 → 趨勢多頭")
+    st.write("• 20分 → RSI低檔")
+    st.write("• 20分 → KD低檔")
+    st.write("• 20分 → 高殖利率")
+    st.write("• 10分 → 本益比合理")
 
     st.write("📌 80分以上：適合存股")
-    st.write("📌 50~80分：觀察區")
-    st.write("📌 50分以下：保守")
+    st.write("📌 50~80分：觀察")
+    st.write("📌 50以下：保守")
 
     # =========================
-    # 📈 配息資訊
+    # 📈 配息紀錄
     # =========================
     try:
         divs = ticker.dividends
