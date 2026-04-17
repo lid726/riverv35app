@@ -141,7 +141,21 @@ if st.button("🚀 開始分析"):
     except:
         info = {}
 
-    div_yield = safe_float(info.get("dividendYield"))
+    # =========================
+    # ⭐ 修正：殖利率（正確算法）
+    # =========================
+    divs = ticker.dividends
+
+    if divs is not None and not divs.empty:
+        last_year_div = divs[
+            divs.index >= (divs.index.max() - pd.DateOffset(years=1))
+        ]
+
+        annual_div = last_year_div.sum()
+        div_yield = annual_div / price
+    else:
+        div_yield = 0
+
     pe = safe_float(info.get("trailingPE"))
 
     # =========================
@@ -224,20 +238,6 @@ if st.button("🚀 開始分析"):
 
     st.write(f"💵 殖利率：{div_yield*100:.2f}%")
     st.write(f"📊 本益比：{pe:.2f}" if pe > 0 else "📊 無資料")
-
-    # =========================
-    # 🧠 新增：殖利率 & 本益比說明
-    # =========================
-    st.markdown("### 🧠 殖利率 & 本益比說明")
-
-    st.write("📌 殖利率 = 年股息 / 股價")
-    st.write("• 用來看現金回報率")
-    st.write("• 越高不一定越好（可能異常）")
-
-    st.write("")
-    st.write("📌 本益比（PE）= 股價 / EPS")
-    st.write("• 衡量股票價格是否合理")
-    st.write("• 10~20 通常為合理區間")
 
     # =========================
     # ⭐ 評分說明
