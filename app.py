@@ -87,11 +87,9 @@ def load_stock(stock):
             period="6mo",
             progress=False,
             auto_adjust=False,
-            threads=False   # ⭐ 修正重點
+            threads=False
         )
-
         return clean_data(df)
-
     except:
         return pd.DataFrame()
 
@@ -103,11 +101,12 @@ st.title("📊 存股分析 App v3.3（人生像河流）")
 
 stock = st.text_input("輸入股票代號（2330.TW / AAPL）")
 
-# ⭐ 修正重點：股票格式處理
+# ⭐ 股票格式修正
 stock = stock.strip().upper()
 
 if stock.isdigit():
     stock = stock + ".TW"
+
 
 if st.button("🚀 開始分析"):
 
@@ -219,12 +218,26 @@ if st.button("🚀 開始分析"):
         st.write("• 高檔鈍化 → 反轉")
 
     # =========================
-    # 💰 配息
+    # 💰 配息 / 殖利率
     # =========================
     st.subheader("💰 配息 / 殖利率")
 
     st.write(f"💵 殖利率：{div_yield*100:.2f}%")
     st.write(f"📊 本益比：{pe:.2f}" if pe > 0 else "📊 無資料")
+
+    # =========================
+    # 🧠 新增：殖利率 & 本益比說明
+    # =========================
+    st.markdown("### 🧠 殖利率 & 本益比說明")
+
+    st.write("📌 殖利率 = 年股息 / 股價")
+    st.write("• 用來看現金回報率")
+    st.write("• 越高不一定越好（可能異常）")
+
+    st.write("")
+    st.write("📌 本益比（PE）= 股價 / EPS")
+    st.write("• 衡量股票價格是否合理")
+    st.write("• 10~20 通常為合理區間")
 
     # =========================
     # ⭐ 評分說明
